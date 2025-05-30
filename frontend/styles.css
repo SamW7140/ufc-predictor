@@ -2,122 +2,206 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
-    background-color: #f0f0f0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     padding: 20px;
+    min-height: 100vh;
 }
 
 .container {
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto;
     background-color: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
 h1 {
     text-align: center;
     color: #333;
-    margin-bottom: 30px;
+    margin-bottom: 40px;
+    font-size: 2.5em;
+    font-weight: 300;
 }
 
 .input-section {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 25px;
     margin-bottom: 30px;
 }
 
 .input-group {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 8px;
+    position: relative;
 }
 
 label {
-    font-weight: bold;
+    font-weight: 600;
     color: #555;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-input {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+input, select {
+    padding: 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
     font-size: 16px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.hint {
+    font-size: 12px;
+    color: #888;
+    font-style: italic;
+    margin-top: 4px;
+}
+
+.weight-class-info {
+    background-color: #f8f9fa;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border-left: 4px solid #667eea;
+    font-size: 13px;
+    margin-top: 5px;
 }
 
 button {
-    background-color: #e63946;
+    background: linear-gradient(135deg, #e63946 0%, #c1121f 100%);
     color: white;
     border: none;
-    padding: 12px 20px;
-    border-radius: 5px;
+    padding: 15px 25px;
+    border-radius: 8px;
     cursor: pointer;
     font-size: 16px;
-    font-weight: bold;
-    transition: background-color 0.3s;
+    font-weight: 600;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 button:hover {
-    background-color: #c1121f;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(230, 57, 70, 0.3);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+.toggle-details {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    font-size: 14px;
+    padding: 8px 16px;
+    margin-top: 15px;
 }
 
 .result-section {
-    margin-top: 20px;
+    margin-top: 30px;
 }
 
 .hidden {
-    display: none;
+    display: none !important;
 }
 
 #loading {
     text-align: center;
     color: #666;
     font-style: italic;
+    padding: 40px;
+    font-size: 18px;
 }
 
 #result {
-    background-color: #f8f9fa;
-    padding: 20px;
-    border-radius: 5px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 30px;
+    border-radius: 12px;
     margin-top: 20px;
+    border: 1px solid #e0e0e0;
 }
 
 #result h2 {
     color: #333;
+    margin-bottom: 20px;
+    font-weight: 300;
+    font-size: 1.8em;
+}
+
+.prediction-card {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     margin-bottom: 15px;
 }
 
-#predictionText {
-    font-size: 18px;
+.prediction-main {
+    font-size: 22px;
     color: #333;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
+    text-align: center;
+    line-height: 1.4;
 }
 
-.elo-ratings {
+.prediction-details {
     display: flex;
-    justify-content: space-around;
-    margin-top: 20px;
+    flex-direction: column;
+    gap: 12px;
 }
 
-.elo-ratings div {
-    background-color: #e9ecef;
-    padding: 10px 20px;
-    border-radius: 5px;
-    font-weight: bold;
+.prediction-details p {
+    font-size: 14px;
+    color: #666;
+    padding: 8px 12px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    border-left: 3px solid #667eea;
+}
+
+.model-details {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #f1f3f5;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.model-details h3 {
+    color: #495057;
+    font-size: 16px;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.model-details p {
+    background-color: white;
+    margin-bottom: 8px;
+    font-size: 13px;
 }
 
 #error {
     color: #e63946;
     text-align: center;
     margin-top: 20px;
-    padding: 10px;
+    padding: 15px;
     background-color: #ffe5e5;
-    border-radius: 5px;
+    border-radius: 8px;
+    border: 1px solid #f5c6cb;
+    font-weight: 500;
 }
 
 .autocomplete {
@@ -128,25 +212,71 @@ button:hover {
 
 .suggestions {
     position: absolute;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    max-height: 200px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    max-height: 250px;
     overflow-y: auto;
     width: 100%;
     background-color: white;
     z-index: 1000;
-    display: none;
+    visibility: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .suggestions div {
-    padding: 10px;
+    padding: 12px 15px;
     cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s;
 }
 
 .suggestions div:hover {
-    background-color: #f0f0f0;
+    background-color: #f8f9fa;
+}
+
+.suggestions div:last-child {
+    border-bottom: none;
 }
 
 .suggestions.active {
-    display: block;
+    visibility: visible;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+        margin: 10px;
+    }
+    
+    h1 {
+        font-size: 2em;
+        margin-bottom: 30px;
+    }
+    
+    .prediction-main {
+        font-size: 18px;
+    }
+    
+    .input-section {
+        gap: 20px;
+    }
+}
+
+/* Loading animation */
+#loading::after {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 } 

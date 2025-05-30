@@ -11,11 +11,20 @@
     <h1>UFC Fighter Matchup Predictor</h1>
     <div class="input-section">
       <div class="input-group">
+        <label for="weight-class">Weight Class:</label>
+        <select id="weight-class">
+          <option value="All">All Weight Classes</option>
+          <!-- Options will be populated dynamically -->
+        </select>
+        <small class="hint">Select a weight class to filter available fighters</small>
+      </div>
+      <div class="input-group">
         <label for="fighter1">Fighter 1:</label>
         <div class="autocomplete">
           <input type="text" id="fighter1" placeholder="Enter fighter name">
           <div id="fighter1-suggestions" class="suggestions"></div>
         </div>
+        <div id="fighter1-weight-classes" class="weight-class-info hidden"></div>
       </div>
       <div class="input-group">
         <label for="fighter2">Fighter 2:</label>
@@ -23,6 +32,7 @@
           <input type="text" id="fighter2" placeholder="Enter fighter name">
           <div id="fighter2-suggestions" class="suggestions"></div>
         </div>
+        <div id="fighter2-weight-classes" class="weight-class-info hidden"></div>
       </div>
       <button id="predictBtn">Predict Winner</button>
     </div>
@@ -30,11 +40,20 @@
       <div id="loading" class="hidden">Calculating prediction...</div>
       <div id="result" class="hidden">
         <h2>Prediction Result</h2>
-        <p id="predictionText"></p>
-        <div class="elo-ratings">
-          <div id="fighter1Elo"></div>
-          <div id="fighter2Elo"></div>
+        <div class="prediction-card">
+          <p id="predictionText" class="prediction-main"></p>
+          <div class="prediction-details">
+            <p id="confidence-info"></p>
+            <p id="weight-class-info"></p>
+            <div id="model-details" class="model-details hidden">
+              <h3>Model Details</h3>
+              <p id="prediction-method"></p>
+              <p id="model-confidences"></p>
+              <p id="fighter-order-info"></p>
+            </div>
+          </div>
         </div>
+        <button id="toggle-details" class="toggle-details">Show Details</button>
       </div>
       <div id="error" class="hidden"></div>
     </div>
