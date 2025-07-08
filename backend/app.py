@@ -339,4 +339,9 @@ def serve_static(path):
     return send_from_directory(os.path.join(project_root, 'frontend'), path)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # For Azure App Service, use environment variables for host and port
+    import os
+    port = int(os.environ.get('PORT', 5000))
+    host = os.environ.get('HOST', '0.0.0.0')
+    debug = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
+    app.run(host=host, port=port, debug=debug)
