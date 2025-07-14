@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, HistGradientBoostingClassifier
 from sklearn.calibration import CalibratedClassifierCV, calibration_curve
 from sklearn.metrics import brier_score_loss, roc_auc_score, precision_recall_curve, average_precision_score
 from sklearn.compose import ColumnTransformer
@@ -75,11 +75,23 @@ def preprocess_data(create_balanced=True):
     df['td_ratio'] = (df['r_td'] + 1) / (df['b_td'] + 1)
     df['win_rate_ratio'] = (df['r_career_win_rate'] + 0.01) / (df['b_career_win_rate'] + 0.01)
     
+    # Add average per fight features
+    df['r_avg_str'] = df['r_career_str'] / df['r_career_fights'].clip(lower=1)
+    df['b_avg_str'] = df['b_career_str'] / df['b_career_fights'].clip(lower=1)
+    df['avg_str_diff'] = df['r_avg_str'] - df['b_avg_str']
+    df['r_avg_td'] = df['r_career_td'] / df['r_career_fights'].clip(lower=1)
+    df['b_avg_td'] = df['b_career_td'] / df['b_career_fights'].clip(lower=1)
+    df['avg_td_diff'] = df['r_avg_td'] - df['b_avg_td']
+    df['r_avg_kd'] = df['r_career_kd'] / df['r_career_fights'].clip(lower=1)
+    df['b_avg_kd'] = df['b_career_kd'] / df['b_career_fights'].clip(lower=1)
+    df['avg_kd_diff'] = df['r_avg_kd'] - df['b_avg_kd']
+    
     # Select numerical features
     numerical_features = [
         'str_diff', 'td_diff', 'kd_diff', 'fights_diff',
         'wins_diff', 'losses_diff', 'win_rate_diff',
-        'str_ratio', 'td_ratio', 'win_rate_ratio'
+        'str_ratio', 'td_ratio', 'win_rate_ratio',
+        'avg_str_diff', 'avg_td_diff', 'avg_kd_diff'
     ]
     
     # One-hot encode weight classes
@@ -154,9 +166,9 @@ def train_dual_perspective_models():
     
     # Train main model (red perspective)
     print("\n----- Training Red Perspective Model -----")
-    red_model = GradientBoostingClassifier(
-        n_estimators=100, 
-        learning_rate=0.1, 
+    red_model = HistGradientBoostingClassifier(
+        max_iter=200, 
+        learning_rate=0.05, 
         max_depth=5,
         random_state=42
     )
@@ -177,9 +189,9 @@ def train_dual_perspective_models():
     
     # Train blue perspective model (predicts if blue fighter wins)
     print("\n----- Training Blue Perspective Model -----")
-    blue_model = GradientBoostingClassifier(
-        n_estimators=100, 
-        learning_rate=0.1, 
+    blue_model = HistGradientBoostingClassifier(
+        max_iter=200, 
+        learning_rate=0.05, 
         max_depth=5,
         random_state=43  # Different random state for diversity
     )
@@ -249,9 +261,9 @@ def train_model():
     X_test_scaled = scaler.transform(X_test)
     
     # Try GradientBoostingClassifier for better probability calibration
-    base_model = GradientBoostingClassifier(
-        n_estimators=100, 
-        learning_rate=0.1, 
+    base_model = HistGradientBoostingClassifier(
+        max_iter=200, 
+        learning_rate=0.05, 
         max_depth=5,
         random_state=42
     )

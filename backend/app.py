@@ -57,6 +57,9 @@ def calculate_features_for_perspective(red_fighter_stats, blue_fighter_stats, we
         'str_ratio': (red_fighter_stats['r_str'] + 1) / (blue_fighter_stats['b_str'] + 1),
         'td_ratio': (red_fighter_stats['r_td'] + 1) / (blue_fighter_stats['b_td'] + 1),
         'win_rate_ratio': (red_fighter_stats['r_career_win_rate'] + 0.01) / (blue_fighter_stats['b_career_win_rate'] + 0.01),
+        'avg_str_diff': (red_fighter_stats['r_career_str'] / max(1, red_fighter_stats['r_career_fights'])) - (blue_fighter_stats['b_career_str'] / max(1, blue_fighter_stats['b_career_fights'])),
+        'avg_td_diff': (red_fighter_stats['r_career_td'] / max(1, red_fighter_stats['r_career_fights'])) - (blue_fighter_stats['b_career_td'] / max(1, blue_fighter_stats['b_career_fights'])),
+        'avg_kd_diff': (red_fighter_stats['r_career_kd'] / max(1, red_fighter_stats['r_career_fights'])) - (blue_fighter_stats['b_career_kd'] / max(1, blue_fighter_stats['b_career_fights'])),
         'weight_class': weight_class
     }
     return features
