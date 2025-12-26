@@ -1,298 +1,121 @@
-# 🥊 UFC Fight Predictor
+# UFC Fight Predictor
 
-<div align="center">
+**Solving the "Red Corner" bias with dual-perspective Machine Learning.**
 
-![Python](https://img.shields.io/badge/python-3.9+-blue.svg)
-![Flask](https://img.shields.io/badge/flask-2.0+-green.svg)
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)
-![Coverage](https://img.shields.io/badge/coverage-85%25-green.svg)
-
-**A sophisticated AI-powered web application that predicts UFC fight outcomes using dual-perspective machine learning with bias elimination**
-
-[Live Demo](https://samw7140.github.io/ufc-predictor/) · [API Docs](/api/docs) · [Case Study](CASE_STUDY.md) · [Report Bug](https://github.com/your-username/ufc-predictor/issues)
-
-</div>
+[Live Demo](https://samw7140.github.io/ufc-predictor/) · [API Docs](https://www.google.com/search?q=/api/docs) · [Case Study](https://www.google.com/search?q=CASE_STUDY.md) · [Report Bug](https://github.com/your-username/ufc-predictor/issues)
 
 ---
 
-## ✨ Highlights
+## Highlights
 
-🤖 **Dual-Perspective ML** - Eliminates positional bias with innovative two-model approach
-📊 **Interactive Visualizations** - Radar charts for fighter comparison
-🌓 **Dark/Light Mode** - Beautiful, responsive UI with theme switching
-📈 **Real-time Stats** - 7,500+ fights analyzed across all weight classes
-🚀 **Production Ready** - Docker, CI/CD, comprehensive testing
-📖 **API Documentation** - Interactive Swagger UI
+* **Dual-Perspective ML** - Eliminates positional bias with a two-model approach
+* **Interactive Visualizations** - Radar charts for fighter comparison
+* **Theme Support** - Responsive UI with dark and light modes
+* **Real-time Stats** - 7,500+ fights analyzed across all weight classes
+* **Production Ready** - Docker-compatible, CI/CD, and comprehensive testing
 
 ---
 
-## 🎯 Features
+## The Problem: Positional Bias
 
-A sophisticated web application that predicts the outcome of UFC fights using machine learning models trained on comprehensive historical fight data. The system features advanced bias elimination, weight class filtering, and dual-perspective prediction analysis.
+In the UFC, the "Red Corner" is traditionally reserved for the higher-ranked fighter or the favorite. Standard Machine Learning models often fall into a trap: they learn that the Red Corner wins more often, creating a positional bias rather than analyzing the actual matchup.
+
+**The Solution:** I developed a dual-model system that evaluates every fight twice—once from each perspective—and averages the confidence levels. This ensures the prediction is based on performance metrics, not just which name is listed first in the data.
+
+---
+
+## Core Tech Stack
+
+* **Backend:** Python, Flask (CORS-enabled)
+* **ML:** Scikit-learn (Dual-model architecture), Pandas, Joblib
+* **Frontend:** Vanilla JS, CSS3 (Modern UI with Grid/Flexbox)
+* **Data:** 7,500+ historical fights analyzed
+
+---
 
 ## Key Features
 
-### Core Prediction System
-- **Machine Learning Models**: Uses trained red/blue corner models with confidence-weighted predictions
-- **Bias-Free Predictions**: Eliminates positional bias through fighter order randomization and dual-perspective analysis
-- **Confidence Scoring**: Provides detailed confidence metrics and prediction methodology transparency
-- **Enhanced Accuracy**: Dual-perspective validation with intelligent averaging based on model confidence
+### 1. The Prediction Engine
 
-### Weight Class Management
-- **Smart Filtering**: Filter fighters by weight class for realistic matchups
-- **Weight Class Validation**: Prevents unrealistic cross-weight-class predictions
-- **Fighter History**: Shows all weight classes each fighter has competed in
-- **Auto-Detection**: Automatically suggests appropriate weight classes for matchups
+* **Dual-Perspective ML:** Uses two separate models (Red-Perspective and Blue-Perspective). The final output is a confidence-weighted average, effectively neutralizing the favorite bias.
+* **Confidence Scoring:** Provides a probability percentage based on model certainty rather than a simple binary outcome.
+* **Feature Engineering:** Calculates statistical deltas in striking accuracy, takedown defense, and reach to determine how styles clash.
 
-### Modern User Interface
-- **Responsive Design**: Modern, mobile-friendly interface with gradient design
-- **Advanced Autocomplete**: Real-time fighter suggestions with weight class filtering
-- **Detailed Results**: Comprehensive prediction cards with confidence levels and model details
-- **Enhanced UX**: Loading animations, error handling, and visual feedback
+### 2. Weight Class Logic
 
-### API & Data Features
-- **RESTful API**: Comprehensive endpoints for predictions, fighter data, and weight class management
-- **Data Validation**: Robust error handling and input validation
-- **Performance Optimization**: Efficient data processing and caching
+* **Dynamic Filtering:** The UI updates fighter lists based on the selected weight class to prevent unrealistic matchups (e.g., a Flyweight vs. a Heavyweight).
+* **Auto-Detection:** Suggests the appropriate weight class based on the fighters' historical competition data.
 
-## Quick Start
+### 3. User Experience
 
-### Live Demo
-🎯 **[Try the GitHub Pages Demo](https://samw7140.github.io/ufc-predictor/)** - Experience the interface with sample predictions
-
-### Prerequisites
-- Python 3.7+
-- Virtual environment (recommended)
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd ufc-predictor
-   ```
-
-2. **Create and activate virtual environment**
-   ```bash
-   python -m venv .venv
-   # Windows:
-   .venv\Scripts\activate
-   # macOS/Linux:
-   source .venv/bin/activate
-   ```
-
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-### Running the Application
-
-1. **Start the backend server**
-   ```bash
-   python backend/app.py
-   ```
-
-2. **Access the application**
-   - Open your browser to: `http://localhost:5000`
-   - The frontend is automatically served by the Flask backend
-
-## How to Use
-
-1. **Select Weight Class** (Optional)
-   - Choose a specific weight class to filter available fighters
-   - Or select "All Weight Classes" for unrestricted selection
-
-2. **Choose Fighters**
-   - Start typing fighter names in the input fields
-   - Autocomplete suggestions will appear based on your weight class selection
-   - Select two different fighters for the matchup
-
-3. **Get Prediction**
-   - Click "Predict Winner" to get detailed analysis
-   - View comprehensive results including:
-     - Winner prediction with probability
-     - Confidence level
-     - Model details and methodology
-     - Weight class information
-
-## Technical Architecture
-
-### Backend (`backend/app.py`)
-- **Framework**: Flask with CORS support
-- **Models**: Pre-trained scikit-learn models (red_model, blue_model)
-- **Data Processing**: pandas for efficient data manipulation
-- **Feature Engineering**: Advanced statistical feature calculation
-- **Bias Elimination**: Fighter order randomization and dual-perspective analysis
-
-### Frontend
-- **HTML**: Modern semantic structure with accessibility features
-- **CSS**: Responsive design with CSS Grid and Flexbox
-- **JavaScript**: Vanilla JS with async/await for API calls
-- **UX**: Progressive enhancement with loading states and error handling
-
-### Machine Learning Pipeline
-- **Dual-Model System**: Separate models for red and blue corner perspectives
-- **Feature Engineering**: Statistical differences and ratios between fighters
-- **Confidence Weighting**: Intelligent averaging based on model certainty
-- **Bias Prevention**: Randomized fighter assignment and dual-perspective validation
-
-## API Endpoints
-
-### Prediction
-- **`POST /predict`** — Main prediction endpoint
-  - Body: `{"fighter1": "Fighter Name", "fighter2": "Fighter Name", "weight_class": "Weight Class"}`
-  - Returns: Detailed prediction with confidence metrics
-
-### Fighter Data
-- **`GET /fighters`** — Get all fighters (with optional weight class filtering)
-  - Query params: `?weight_class=<class_name>`
-- **`GET /fighters-by-weight-class/<weight_class>`** — Get fighters in specific weight class
-- **`GET /fighter-weight-classes/<fighter_name>`** — Get weight classes for specific fighter
-
-### Weight Classes
-- **`GET /weight-classes`** — Get all available weight classes
-
-### Static Files
-- **`GET /`** — Serves the main application
-- **`GET /<path>`** — Serves static frontend files
-
-## Testing & Validation
-
-### Bias Elimination Verification
-Our comprehensive testing confirmed the elimination of positional bias:
-
-- **Jon Jones vs Daniel Cormier**: Same winner regardless of input order
-- **Conor McGregor vs Nate Diaz**: Consistent predictions both ways
-- **Anderson Silva vs Chael Sonnen**: No positional dependency
-
-### Model Consistency
-- Models make consistent predictions based on fighter characteristics
-- No artificial bias toward first or second fighter position
-- Confidence-weighted averaging provides robust predictions
-
-### Weight Class Functionality
-- Successful filtering of fighters by weight class
-- Validation prevents unrealistic matchups
-- Autocomplete works correctly with weight class constraints
-
-## Key Improvements Implemented
-
-### 1. Bias Elimination
-- **Fighter Order Randomization**: Eliminates any potential positional effects
-- **Dual-Perspective Analysis**: Both red and blue model perspectives
-- **Confidence-Weighted Averaging**: Intelligent prediction combination
-- **Comprehensive Testing**: Verified no positional bias exists
-
-### 2. Weight Class Integration
-- **Smart Filtering**: Filter fighters by weight class before selection
-- **Validation Logic**: Prevents unrealistic cross-weight-class matchups
-- **Historical Data**: Shows all weight classes fighters have competed in
-- **Auto-Detection**: Suggests appropriate weight classes automatically
-
-### 3. Enhanced User Experience
-- **Modern UI**: Contemporary design with gradients and animations
-- **Responsive Layout**: Works seamlessly on desktop and mobile
-- **Advanced Autocomplete**: Real-time suggestions with weight class filtering
-- **Detailed Results**: Comprehensive prediction analysis with confidence metrics
-
-### 4. Technical Robustness
-- **Error Handling**: Comprehensive error catching and user feedback
-- **Data Validation**: Robust input validation and sanitization
-- **Performance**: Optimized API calls and data processing
-- **Debugging**: Extensive logging for troubleshooting
-
-## Model Performance
-
-### Prediction Methodology
-1. **Feature Calculation**: Statistical differences between fighters (strikes, takedowns, etc.)
-2. **Dual Perspective**: Both fighters evaluated in red and blue corners
-3. **Model Prediction**: Separate red and blue models provide probability estimates
-4. **Confidence Weighting**: Higher confidence predictions get more weight
-5. **Final Decision**: Intelligent averaging produces final win probability
-
-### Confidence Metrics
-- **High Confidence**: Predictions > 70% probability
-- **Medium Confidence**: Predictions 55-70% probability  
-- **Low Confidence**: Predictions 50-55% probability
-
-## Future Enhancements
-
-- **Historical Head-to-Head**: Analysis of previous fights between selected fighters
-- **Fighter Statistics Dashboard**: Detailed fighter stats and career highlights
-- **Prediction History**: Save and compare prediction results
-- **Advanced Filtering**: Filter by age, reach, record, fighting style
-- **Live Data Integration**: Real-time updates from UFC data feeds
-- **Model Improvements**: Continuous training with new fight data
-
-## 🌐 Deployment Options
-
-### GitHub Pages (Static Demo)
-The application is automatically deployed to GitHub Pages with a static demonstration version:
-- **Live Demo**: https://samw7140.github.io/ufc-predictor/
-- **Features**: Sample predictions, full UI experience, mock fighter data
-- **Limitations**: Uses pre-defined predictions, not real ML models
-- **Auto-deployment**: Updates automatically on pushes to main branch
-
-### Local Development (Full Application)
-For the complete experience with real machine learning predictions:
-
-1. **Clone and setup**:
-   ```bash
-   git clone https://github.com/SamW7140/ufc-predictor.git
-   cd ufc-predictor
-   python -m venv .venv
-   source .venv/bin/activate  # Windows: .venv\Scripts\activate
-   pip install -r requirements.txt
-
-### Azure Deployment
-The application also supports Azure App Service deployment via GitHub Actions workflow.
-=======
-## Project Structure
-
-
-```
-ufc-predictor/
-├── docs/                      # GitHub Pages static demo
-│   ├── index.html            # Demo HTML interface
-│   ├── script.js             # Client-side demo logic
-│   └── styles.css            # Demo styling
-├── backend/
-│   ├── app.py                 # Main Flask application
-│   ├── *.joblib              # Trained ML models and preprocessors
-│   ├── processed_data.csv    # Processed fight data
-│   └── fighters.csv          # Fighter names database
-├── frontend/
-│   ├── index.html            # Main web interface
-│   ├── script.js             # Frontend JavaScript
-│   └── styles.css            # Modern CSS styling
-├── .github/workflows/
-│   ├── deploy-github-pages.yml  # GitHub Pages deployment
-│   └── azure-deploy.yml      # Azure deployment
-├── requirements.txt          # Python dependencies
-├── README.md                 # This file
-└── IMPROVEMENTS_SUMMARY.md   # Detailed technical improvements
-```
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Server won't start**: Ensure virtual environment is activated and dependencies installed
-2. **Fighters not found**: Check that processed_data.csv exists in backend folder
-3. **Predictions inconsistent**: This is expected - models make consistent predictions based on fighter data
-4. **Weight class filtering not working**: Verify processed_data.csv contains weight_class column
-
-### Debugging
-- Server logs are printed to console when running `python backend/app.py`
-- Use browser developer tools to inspect API responses
-- Check console output for detailed prediction analysis
-
-## License
-
-This project is for educational and demonstration purposes. UFC and fighter data used under fair use for statistical analysis.
+* **Responsive Design:** Fully optimized for mobile devices.
+* **Real-time Search:** Optimized autocomplete functionality for finding fighters in a database of thousands.
 
 ---
 
-**Note**: The prediction system has been thoroughly tested and validated to eliminate positional bias. Consistent predictions for the same fighters are expected behavior based on the machine learning models' analysis of fighter performance data. 
+## Getting Started
+
+### Prerequisites
+
+* Python 3.9+
+* Virtual environment (recommended)
+
+### Local Setup
+
+1. **Clone the repository**
+```bash
+git clone https://github.com/SamW7140/ufc-predictor.git
+cd ufc-predictor
+
+```
+
+
+2. **Install dependencies**
+```bash
+pip install -r requirements.txt
+
+```
+
+
+3. **Run the server**
+```bash
+python backend/app.py
+
+```
+
+
+The application will be live at `http://localhost:5000`.
+
+---
+
+## How the Model Works
+
+Instead of a single pass/fail check, the pipeline follows these steps:
+
+1. **Deltas:** Calculate the statistical gap between Fighter A and Fighter B.
+2. **Symmetry Check:** Pass the data through the Red Model (Fighter A as favorite) and the Blue Model (Fighter A as underdog).
+3. **Weighted Average:** If the Red Model is 80% sure and the Blue Model is 60% sure, the system weights the more confident model more heavily to produce the final result.
+
+---
+
+## Project Structure
+
+* `backend/`: Flask API and .joblib model files.
+* `frontend/`: Main web interface and assets.
+* `docs/`: Static demo files for GitHub Pages deployment.
+* `.github/workflows/`: CI/CD pipelines for Azure and GitHub Pages.
+
+---
+
+## Future Roadmap
+
+* **Head-to-Head Analysis:** Factoring in previous matchups between the same fighters.
+* **Live Data Integration:** Automating scrapers to pull live odds and updated stats from UFC.com.
+* **Stylistic Matchups:** Adding categorical weights for different fighting styles (e.g., Grappler vs. Striker).
+
+**Developed by Sam Wale-Bogunjoko**
+*Data Science Student at Penn State University*
+
+---
+
+Would you like me to help you refine the **API Documentation** or the **Case Study** to match this professional tone?
