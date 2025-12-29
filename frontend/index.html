@@ -1,144 +1,839 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>UFC Fighter Matchup Predictor</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KING MAWS | Retro Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* MAWS Brand Colors */
+            --maws-purple: #6b5b95;
+            --maws-dark-purple: #2d1b4e;
+            --maws-gold: #ffd700;
+            
+            /* Retro Tech Colors */
+            --tv-casing: #222024;
+            --screen-black: #0f0f0f;
+            --phosphor-green: #33ff00;
+            
+            /* Guide Colors */
+            --guide-blue: #0000aa;
+            
+            /* Backgrounds */
+            --hero-bg: #151515;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #101010;
+            color: white;
+            font-family: 'VT323', monospace;
+            overflow-x: hidden;
+            padding-bottom: 40px;
+        }
+
+        /* =========================================
+           GLOBAL CRT EFFECT OVERLAY
+           ========================================= */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        /* =========================================
+           SECTION 1: HERO (TV & REMOTE)
+           ========================================= */
+        #hero {
+            min-height: 100vh;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center; 
+            gap: 60px; /* Reduced gap slightly to fit the wider TV */
+            padding: 40px 20px;
+            background: var(--hero-bg);
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #101010 80%, #151515 100%);
+        }
+
+        .tv-set {
+            /* EVEN WIDER TV */
+            width: 100%;
+            max-width: 1100px; 
+            aspect-ratio: 11/8;
+            height: auto;
+            background: var(--tv-casing);
+            border-radius: 40px;
+            padding: 35px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.9), 
+                        0 0 100px rgba(0,0,0,0.8);
+            position: relative;
+            border: 15px solid #1a1a1a;
+            z-index: 5;
+        }
+
+        .tv-brand-label {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--maws-gold);
+            font-family: 'Press Start 2P', cursive; 
+            font-size: 1rem;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+            opacity: 0.8;
+        }
+
+        .tv-screen-container {
+            width: 100%;
+            height: 93%; 
+            background: var(--screen-black);
+            border-radius: 100px / 70px; /* Flatter curve for wider screen */
+            position: relative;
+            overflow: hidden;
+            border: 4px solid #333;
+            box-shadow: inset 0 0 80px rgba(0,0,0,1);
+        }
+
+        .tv-screen {
+            width: 100%;
+            height: 100%;
+            padding: 50px;
+            color: var(--phosphor-green);
+            text-shadow: 0 0 5px var(--phosphor-green);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: clamp(1rem, 2.5vw, 2.2rem);
+            opacity: 0;
+            transition: opacity 0.2s; /* Faster fade */
+            position: relative;
+            z-index: 2;
+        }
+
+        .tv-screen.on { opacity: 1; }
+
+        .tv-screen h2 {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.8rem;
+            line-height: 1.5;
+            margin-bottom: 25px;
+            color: #fff;
+            text-shadow: 3px 3px var(--maws-purple);
+        }
+
+        /* LINKS ON TV SCREEN */
+        .screen-link {
+            color: #fff;
+            text-decoration: none;
+            border-bottom: 4px dashed var(--maws-gold);
+            transition: all 0.2s;
+            cursor: pointer;
+            position: relative;
+            z-index: 100; 
+        }
+
+        .screen-link:hover {
+            color: var(--maws-gold);
+            border-bottom: 4px solid var(--maws-gold);
+            text-shadow: 0 0 20px var(--maws-gold);
+        }
+        
+        .screen-link::after {
+            content: ' 🔗';
+            font-size: 0.6em;
+            opacity: 0.7;
+        }
+
+        .tv-logo-img {
+            max-width: 45%;
+            height: auto;
+            margin-bottom: 25px;
+            filter: contrast(1.2) sepia(0.5) hue-rotate(50deg) saturate(3); 
+        }
+
+        .tech-stack {
+            font-size: 1.4rem;
+            color: var(--maws-gold);
+            margin-top: 20px;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        .channel-indicator {
+            position: absolute;
+            top: 40px;
+            right: 50px;
+            font-family: 'VT323', monospace;
+            color: var(--maws-gold);
+            font-size: 4rem;
+            display: none;
+            text-shadow: 0 0 10px var(--maws-gold);
+            z-index: 10;
+        }
+
+        .static-noise {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAIklEQVQIW2NkQAKrVq36zwjjgzhhYWGMYAEYB8RmROaABADeOQ8CXl/xfgAAAABJRU5ErkJggg==');
+            opacity: 0;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        @keyframes noise-anim {
+            0% { transform: translate(0,0); }
+            10% { transform: translate(-5%,-5%); }
+            100% { transform: translate(5%,0); }
+        }
+
+        .tv-screen.fuzz .static-noise {
+            opacity: 0.4;
+            animation: noise-anim 0.2s infinite;
+        }
+
+        /* Scaled Up Remote */
+        .remote {
+            width: 220px;
+            height: 520px;
+            background: #2a2a2a;
+            border-radius: 15px;
+            border-bottom: 12px solid #111;
+            border-right: 6px solid #111;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 20px 20px 40px rgba(0,0,0,0.6);
+            transform: rotate(-5deg);
+            z-index: 20;
+        }
+
+        .brand { 
+            text-align: center; 
+            color: var(--maws-gold); 
+            font-weight: 900; 
+            letter-spacing: 2px; 
+            margin-bottom: 15px; 
+            font-family: sans-serif;
+            text-transform: uppercase; 
+            border: 1px solid #444;
+            padding: 4px;
+            background: #222;
+            font-size: 1.2rem;
+        }
+
+        .power-btn {
+            width: 50px;
+            height: 50px;
+            min-width: 50px;
+            min-height: 50px;
+            background: #cc0000;
+            border-radius: 50%;
+            border: 3px solid #500;
+            align-self: center;
+            flex-shrink: 0;
+            cursor: pointer;
+            box-shadow: inset 3px 3px 8px rgba(255,255,255,0.2);
+        }
+
+        .power-btn:active { transform: scale(0.95); }
+
+        .remote-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+
+        .btn {
+            height: 45px;
+            background: #111;
+            border: 2px solid #444;
+            border-radius: 6px;
+            color: #888;
+            font-family: monospace;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        .btn:active { background: var(--maws-purple); color: white; }
+        .btn-center { grid-column: 2; }
+        .ch-btn { grid-column: span 3; background: #333; margin-top: 10px; color: white; height: 50px; font-size: 1.2rem; }
+
+        /* =========================================
+           SECTION 2: EXPERIENCE (MAWS GUIDE)
+           ========================================= */
+        #experience {
+            background: linear-gradient(to bottom, 
+                #151515 0%, 
+                #000033 20%, 
+                var(--guide-blue) 50%, 
+                var(--guide-blue) 100%
+            );
+            padding: 50px 20px;
+            margin-top: -2px; 
+        }
+
+        .guide-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--guide-blue);
+            border: 4px solid white;
+            box-shadow: 0px 20px 50px rgba(0,0,0,0.5);
+            margin-top: 50px;
+            overflow-x: auto;
+        }
+
+        .guide-header {
+            background: black;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid white;
+        }
+
+        .guide-logo { 
+            font-weight: bold; 
+            font-style: italic; 
+            font-size: 2rem; 
+            letter-spacing: -1px;
+            color: white;
+            text-shadow: 2px 2px var(--maws-purple);
+        }
+
+        #current-time {
+            font-size: 1.5rem;
+            color: var(--maws-gold);
+        }
+
+        .time-grid {
+            display: grid;
+            grid-template-columns: 80px 140px 1fr;
+            border-bottom: 2px solid white;
+            min-width: 800px;
+        }
+
+        .grid-cell {
+            padding: 15px;
+            border-right: 2px solid white;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            font-size: 1.1rem;
+            line-height: 1.4;
+        }
+
+        .grid-header {
+            background: var(--maws-purple);
+            color: var(--maws-gold);
+            font-weight: bold;
+            text-align: center;
+            text-transform: uppercase;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        .channel-col {
+            background: black;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .program-cell { cursor: pointer; transition: background 0.2s; }
+        .program-cell:hover { background: #0000dd; }
+
+        .program-title { 
+            font-weight: bold; 
+            font-size: 1.2rem; 
+            margin-bottom: 5px; 
+            color: var(--maws-gold); 
+            text-transform: uppercase;
+        }
+        .program-desc { font-size: 1rem; opacity: 0.9; margin-bottom: 5px; }
+        .program-tech { font-size: 0.85rem; color: #00ff00; font-family: monospace; }
+
+        /* =========================================
+           SECTION 3: CONTACT (DVD MENU)
+           ========================================= */
+        #contact {
+            min-height: 100vh;
+            background: radial-gradient(circle at center, var(--maws-dark-purple) 0%, #000 90%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            border-top: 4px solid #000; 
+        }
+
+        .dvd-title {
+            font-family: 'Impact', sans-serif;
+            font-size: clamp(3rem, 10vw, 5rem);
+            color: var(--maws-gold);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 40px;
+            text-shadow: 4px 4px 0 #000, -1px -1px 0 #fff;
+            animation: float 6s ease-in-out infinite;
+            text-align: center;
+            z-index: 2;
+        }
+
+        .menu-options { list-style: none; text-align: center; z-index: 2;}
+
+        .menu-item {
+            font-family: 'Verdana', sans-serif;
+            font-size: 1.5rem;
+            color: #aaa;
+            margin: 15px 0;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            position: relative;
+            display: inline-block;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .menu-item:hover {
+            color: var(--maws-gold);
+            transform: scale(1.1);
+            text-shadow: 0 0 10px var(--maws-gold);
+        }
+
+        .menu-item:hover::before { content: '▶'; position: absolute; left: -30px; color: var(--maws-gold); animation: blink 1s infinite; }
+        .menu-item:hover::after { content: '◀'; position: absolute; right: -30px; color: var(--maws-gold); animation: blink 1s infinite; }
+
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        .bouncing-logo {
+            position: absolute;
+            width: 250px;
+            opacity: 0.3;
+            z-index: 0;
+            user-select: none;
+            top: 20%;
+            left: 20%;
+        }
+
+        /* =========================================
+           SCROLLING SKILL BAR (FIXED BOTTOM)
+           ========================================= */
+        #skill-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: #000;
+            border-top: 2px solid var(--phosphor-green);
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            z-index: 1000;
+            font-family: 'VT323', monospace;
+            font-size: 1.4rem;
+            color: var(--phosphor-green);
+            white-space: nowrap;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.8);
+        }
+
+        #skill-track {
+            display: flex;
+            will-change: transform;
+        }
+
+        .skill-item {
+            display: flex;
+            align-items: center;
+            margin-right: 40px; 
+        }
+        
+        .skill-icon {
+            color: var(--phosphor-green);
+            margin-right: 10px;
+            font-size: 1rem;
+        }
+        /* =========================================
+           RESPONSIVE ADJUSTMENTS
+           ========================================= */
+        @media (max-width: 1200px) {
+            .tv-set {
+                width: 90vw;
+                height: auto;
+                aspect-ratio: 11/8;
+            }
+            
+            .tv-screen {
+                padding: 30px;
+            }
+            
+            .tv-screen h2 {
+                font-size: 1.4rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            #hero {
+                flex-direction: column;
+                padding-top: 20px;
+                gap: 30px;
+            }
+
+            .tv-set {
+                width: 95vw;
+                padding: 15px;
+                border-width: 8px;
+                border-radius: 20px;
+            }
+
+            .tv-screen-container {
+                border-width: 2px;
+                border-radius: 20px;
+            }
+
+            .tv-screen {
+                padding: 15px;
+            }
+
+            .tv-brand-label {
+                font-size: 0.6rem;
+                bottom: 5px;
+            }
+
+            .remote {
+                transform: rotate(0deg);
+                width: 180px;
+                height: auto;
+                padding: 15px;
+            }
+            
+            .btn {
+                height: 35px;
+                font-size: 1rem;
+            }
+            
+            .power-btn {
+                width: 40px;
+                height: 40px;
+            }
+
+            .guide-container {
+                width: 95vw;
+            }
+            
+            .bouncing-logo {
+                width: 150px;
+            }
+
+            .channel-indicator {
+                font-size: 2rem;
+                top: 15px;
+                right: 20px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="theme-toggle">
-    <button id="theme-toggle-btn" aria-label="Toggle dark mode">
-      <span class="theme-icon">🌙</span>
-    </button>
-  </div>
 
-  <div class="container">
-    <header class="header">
-      <h1>🥊 UFC Fight Predictor</h1>
-      <p class="subtitle">AI-powered predictions using dual-perspective machine learning</p>
-      <div class="stats-banner" id="stats-banner">
-        <div class="stat-item">
-          <span class="stat-value" id="total-fights">-</span>
-          <span class="stat-label">Total Fights</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-value" id="total-fighters">-</span>
-          <span class="stat-label">Fighters</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-value" id="weight-classes-count">-</span>
-          <span class="stat-label">Weight Classes</span>
-        </div>
-      </div>
-    </header>
-    <div class="input-section">
-      <div class="input-group">
-        <label for="weight-class">Weight Class:</label>
-        <select id="weight-class">
-          <option value="All">All Weight Classes</option>
-          <!-- Options will be populated dynamically -->
-        </select>
-        <small class="hint">Select a weight class to filter available fighters</small>
-      </div>
-      <div class="input-group">
-        <label for="fighter1">Fighter 1:</label>
-        <div class="autocomplete">
-          <input type="text" id="fighter1" placeholder="Enter fighter name">
-          <div id="fighter1-suggestions" class="suggestions"></div>
-        </div>
-        <div id="fighter1-weight-classes" class="weight-class-info hidden"></div>
-      </div>
-      <div class="input-group">
-        <label for="fighter2">Fighter 2:</label>
-        <div class="autocomplete">
-          <input type="text" id="fighter2" placeholder="Enter fighter name">
-          <div id="fighter2-suggestions" class="suggestions"></div>
-        </div>
-        <div id="fighter2-weight-classes" class="weight-class-info hidden"></div>
-      </div>
-      <button id="predictBtn">Predict Winner</button>
-    </div>
-    <div class="result-section">
-      <div id="loading" class="hidden">
-        <div class="loading-spinner"></div>
-        <p>Calculating prediction...</p>
-      </div>
+    <div class="scanlines"></div>
 
-      <div id="fighter-comparison" class="hidden">
-        <h2>Fighter Comparison</h2>
-        <div class="comparison-grid">
-          <div class="fighter-card">
-            <h3 id="fighter1-name"></h3>
-            <div id="fighter1-stats"></div>
-          </div>
-          <div class="vs-divider">VS</div>
-          <div class="fighter-card">
-            <h3 id="fighter2-name"></h3>
-            <div id="fighter2-stats"></div>
-          </div>
-        </div>
-        <div class="chart-container">
-          <canvas id="comparison-chart"></canvas>
-        </div>
-      </div>
-
-      <div id="result" class="hidden">
-        <h2>Prediction Result</h2>
-        <div class="prediction-card">
-          <div class="winner-announcement">
-            <p id="predictionText" class="prediction-main"></p>
-            <div class="confidence-meter">
-              <div class="confidence-bar">
-                <div id="confidence-fill" class="confidence-fill"></div>
-              </div>
-              <p id="confidence-info" class="confidence-text"></p>
+    <!-- HERO SECTION -->
+    <section id="hero">
+        <div class="tv-set">
+            <div class="tv-brand-label">PROJECTS</div>
+            <div class="tv-screen-container">
+                <div class="static-noise"></div>
+                <div class="channel-indicator" id="channel-display">CH 1</div>
+                <div class="tv-screen" id="main-screen">
+                    <div style="opacity: 0.3;">[POWER OFF]</div>
+                </div>
             </div>
-          </div>
-
-          <div class="probability-split">
-            <div class="fighter-prob" id="fighter1-prob-display">
-              <span class="fighter-name" id="fighter1-prob-name"></span>
-              <span class="prob-value" id="fighter1-prob-value"></span>
-            </div>
-            <div class="fighter-prob" id="fighter2-prob-display">
-              <span class="fighter-name" id="fighter2-prob-name"></span>
-              <span class="prob-value" id="fighter2-prob-value"></span>
-            </div>
-          </div>
-
-          <div class="prediction-details">
-            <p id="weight-class-info"></p>
-            <div id="model-details" class="model-details hidden">
-              <h3>Model Details</h3>
-              <p id="prediction-method"></p>
-              <p id="model-confidences"></p>
-              <p id="fighter-order-info"></p>
-            </div>
-          </div>
         </div>
-        <button id="toggle-details" class="toggle-details">Show Model Details</button>
-        <button id="save-prediction" class="save-prediction">Save Prediction</button>
-      </div>
 
-      <div id="error" class="hidden"></div>
+        <div class="remote">
+            <div class="brand">MAWS</div>
+            <button class="power-btn" onclick="togglePower()" title="Power"></button>
+            <div style="text-align:center; margin-top: 10px; font-size: 0.8rem; color:#666;">PROJECT INPUT</div>
+            <div class="remote-grid">
+                <button class="btn" onclick="changeChannel(0)">1</button>
+                <button class="btn" onclick="changeChannel(1)">2</button>
+                <button class="btn" onclick="changeChannel(2)">3</button>
+                <button class="btn" onclick="changeChannel(3)">4</button>
+                <button class="btn" onclick="changeChannel(4)">5</button>
+                <button class="btn" onclick="changeChannel(5)">6</button>
+                <button class="btn btn-center" onclick="changeChannel(6)">7</button>
+            </div>
+            <button class="btn ch-btn" onclick="nextChannel()">CH +</button>
+            <button class="btn ch-btn" onclick="prevChannel()">CH -</button>
+        </div>
+    </section>
+
+    <!-- EXPERIENCE SECTION -->
+    <section id="experience">
+        <div class="guide-container">
+            <div class="guide-header">
+                <span class="guide-logo">MAWS TV GUIDE</span>
+                <span id="current-time">11:00 AM</span>
+            </div>
+            <div class="time-grid">
+                <div class="grid-cell grid-header">CH</div>
+                <div class="grid-cell grid-header">DATE/ERA</div>
+                <div class="grid-cell grid-header">PROGRAM DETAILS</div>
+                <div class="grid-cell channel-col"><span style="color: magenta;">EDU</span></div>
+                <div class="grid-cell">Aug 2022 -<br>Present</div>
+                <div class="grid-cell program-cell">
+                    <div class="program-title">Pennsylvania State University</div>
+                    <div class="program-desc">State College, PA. pursuing B.S. in Computer Science.</div>
+                    <div class="program-tech">Certs: Azure Fundamentals (AZ-900), AWS Cloud Practitioner</div>
+                </div>
+                <div class="grid-cell channel-col"><span style="color: cyan;">WRK</span></div>
+                <div class="grid-cell">May 2025 -<br>Aug 2025</div>
+                <div class="grid-cell program-cell">
+                    <div class="program-title">Covenant Global Services (Intern)</div>
+                    <div class="program-desc">Automated Azure Storage via DevOps pipelines & IaC. Analyzed cost data using KQL.</div>
+                    <div class="program-tech">Azure DevOps, KQL, Informatica, NSG</div>
+                </div>
+                <div class="grid-cell channel-col"><span style="color: orange;">DEV</span></div>
+                <div class="grid-cell">Jun 2025 -<br>Present</div>
+                <div class="grid-cell program-cell">
+                    <div class="program-title">Freelance Python Developer</div>
+                    <div class="program-desc">Built multi-exchange trading bot integrating Robinhood & Schwab APIs.</div>
+                    <div class="program-tech">Python, REST APIs, Real-time reporting</div>
+                </div>
+                <div class="grid-cell channel-col"><span style="color: lime;">SKL</span></div>
+                <div class="grid-cell">Current<br>Loadout</div>
+                <div class="grid-cell program-cell">
+                    <div class="program-title">MAWS Arsenal</div>
+                    <div class="program-desc">Languages: Python, SQL, Java, JavaScript/TS. Data/ML: Pandas, Scikit-learn.</div>
+                    <div class="program-tech">Cloud: Azure Data Factory, Azure AD, CI/CD, Git</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACT SECTION -->
+    <section id="contact">
+        <img src="maws_logo.png" alt="DVD Logo" class="bouncing-logo" id="dvdLogo">
+        <h1 class="dvd-title">CONNECT</h1>
+        <ul class="menu-options">
+            <li><a href="https://share.note.sx/o6txmoua" target="_blank" class="menu-item">CV</a></li>
+            <li><a href="mailto:feranwb@gmail.com" class="menu-item">Email</a></li>
+            <li><a href="https://github.com/Maws7140" target="_blank" class="menu-item">GitHub</a></li>
+            <li><a href="https://www.linkedin.com/in/oluwaferanmi-wale-bogunjoko-72160b2bb/" target="_blank" class="menu-item">LinkedIn</a></li>
+            <li><a href="https://github.com/Maws7140/ufc-predictor" target="_blank" class="menu-item">Project Repo</a></li>
+        </ul>
+    </section>
+
+    <div id="skill-bar">
+        <div id="skill-track"></div>
     </div>
 
-    <div class="prediction-history-section">
-      <h2>Recent Predictions</h2>
-      <div id="prediction-history" class="prediction-history">
-        <p class="no-history">No predictions yet. Make your first prediction above!</p>
-      </div>
-      <button id="clear-history" class="clear-history hidden">Clear History</button>
-    </div>
-  </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            const skills = [
+                "PYTHON", "SQL", "JAVA", "KQL", "JAVASCRIPT", "TYPESCRIPT", 
+                "PANDAS", "NUMPY", "SCIKIT-LEARN", "R", "AZURE", "AWS", 
+                "DEVOPS", "INFORMATICA", "REST APIS", "GIT", "AZURE AD"
+            ];
+            
+            const skillTrack = document.getElementById('skill-track');
+            if(skillTrack) {
+                const singleBlock = skills.map(s => `<span class="skill-item"><span class="skill-icon">◆</span> ${s}</span>`).join("");
+                let fullString = "";
+                for(let i=0; i<50; i++) {
+                    fullString += singleBlock;
+                }
+                skillTrack.innerHTML = fullString;
 
-  <footer class="footer">
-    <p>Powered by dual-perspective machine learning with bias elimination</p>
-    <p><a href="/api/docs" target="_blank">API Documentation</a></p>
-  </footer>
+                window.addEventListener('scroll', () => {
+                    const maxScroll = document.body.scrollHeight - window.innerHeight;
+                    const scrollPct = window.scrollY / maxScroll;
+                    const startPos = -5000; 
+                    const travelDistance = 2000; 
+                    const currentPos = startPos + (scrollPct * travelDistance);
+                    skillTrack.style.transform = `translateX(${currentPos}px)`;
+                });
+            }
 
-  <script src="script.js"></script>
+            const tvScreen = document.getElementById('main-screen');
+            const channelDisplay = document.getElementById('channel-display');
+            let isPowerOn = false;
+            let currentChannel = 0;
+
+            const channels = [
+                {
+                    title: "", 
+                    link: "",
+                    content: "<img src='maws_logo.png' class='tv-logo-img'><p>Oluwaferanmi W-B</p><p style='font-size:1.2rem'>Cloud & Data Engineer</p>"
+                },
+                {
+                    title: "UFC PREDICTOR",
+                    link: "https://github.com/Maws7140/ufc-predictor",
+                    content: "<p>Full-stack Flask App</p><p>Predicts fight outcomes (78% Acc)</p><div class='tech-stack'>Python • Scikit-learn • Azure</div>"
+                },
+                {
+                    title: "STORYTELLER SUITE",
+                    link: "https://github.com/Maws7140/obsidian-storyteller-suite",
+                    content: "<p>Obsidian Plugin (2,000+ Users)</p><p>Complex entity management system</p><div class='tech-stack'>TypeScript • esbuild • Vitest</div>"
+                },
+                {
+                    title: "JAVA SCHEDULER",
+                    link: "https://github.com/Maws7140/CourseScheduler",
+                    content: "<p>Data Management App</p><p>OOP Design & SQL Persistence</p><div class='tech-stack'>Java • JDBC • Apache Derby</div>"
+                },
+                {
+                    title: "TRADING BOT",
+                    link: "https://github.com/Maws7140/robin_schwab_trader",
+                    content: "<p>Freelance Project</p><p>Multi-exchange integration</p><div class='tech-stack'>Python • Robinhood API • Schwab API</div>"
+                },
+                {
+                    title: "FLASHLY",
+                    link: "https://github.com/Maws7140/Flashly",
+                    content: "<p>Automated Flashcard Tool</p><p>Study Smarter</p><div class='tech-stack'>TypeScript • Plugin</div>"
+                },
+                {
+                    title: "GEODISTANCE",
+                    link: "https://maws7140.github.io/Maws-geodistance-/",
+                    content: "<p>Geographic Distance Calculator</p><p>Calculate distances between locations</p><div class='tech-stack'>HTML • JavaScript • Maps API</div>"
+                }
+            ];
+
+            window.togglePower = function() {
+                isPowerOn = !isPowerOn;
+                if (isPowerOn) {
+                    tvScreen.classList.add('on');
+                    tvScreen.innerHTML = ""; 
+                    tvScreen.classList.add('fuzz');
+                    // REDUCED DELAY to 400ms
+                    setTimeout(() => {
+                        tvScreen.classList.remove('fuzz');
+                        loadChannel(currentChannel);
+                        channelDisplay.style.display = 'block';
+                    }, 400);
+                } else {
+                    tvScreen.classList.remove('on');
+                    channelDisplay.style.display = 'none';
+                    setTimeout(() => {
+                        tvScreen.innerHTML = "<div style='opacity: 0.3;'>[POWER OFF]</div>";
+                    }, 300);
+                }
+            };
+
+            window.changeChannel = function(index) {
+                if (!isPowerOn) return;
+                if (index < 0) index = channels.length - 1;
+                if (index >= channels.length) index = 0;
+                currentChannel = index;
+                tvScreen.classList.add('fuzz');
+                channelDisplay.innerText = `CH ${index + 1}`;
+                tvScreen.innerHTML = "";
+                // REDUCED DELAY to 200ms
+                setTimeout(() => {
+                    tvScreen.classList.remove('fuzz');
+                    loadChannel(currentChannel);
+                }, 200);
+            };
+
+            window.nextChannel = function() { changeChannel(currentChannel + 1); };
+            window.prevChannel = function() { changeChannel(currentChannel - 1); };
+
+            function loadChannel(index) {
+                const ch = channels[index];
+                let titleHTML = "";
+                
+                if (ch.title) {
+                    if (ch.link) {
+                        titleHTML = `<h2><a href="${ch.link}" target="_blank" class="screen-link">${ch.title}</a></h2>`;
+                    } else {
+                        titleHTML = `<h2>${ch.title}</h2>`;
+                    }
+                }
+                
+                tvScreen.innerHTML = `
+                    ${titleHTML}
+                    ${ch.content}
+                `;
+            }
+
+            function updateTime() {
+                const now = new Date();
+                let hours = now.getHours();
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12;
+                hours = hours ? hours : 12; 
+                const timeEl = document.getElementById('current-time');
+                if(timeEl) timeEl.innerText = `${hours}:${minutes} ${ampm}`;
+            }
+            setInterval(updateTime, 1000);
+            updateTime();
+
+            const logo = document.getElementById('dvdLogo');
+            const container = document.getElementById('contact');
+            
+            if(logo && container) {
+                let x = 100, y = 100;
+                let dirX = 1.5, dirY = 1.5; 
+                let containerRect, logoRect;
+
+                function animateLogo() {
+                    containerRect = container.getBoundingClientRect();
+                    logoRect = logo.getBoundingClientRect();
+                    
+                    x += dirX; 
+                    y += dirY;
+
+                    if (x + logoRect.width >= containerRect.width || x <= 0) { dirX *= -1; }
+                    if (y + logoRect.height >= containerRect.height || y <= 0) { dirY *= -1; }
+
+                    if(x > containerRect.width) x = containerRect.width - logoRect.width;
+                    if(y > containerRect.height) y = containerRect.height - logoRect.height;
+
+                    logo.style.left = x + 'px';
+                    logo.style.top = y + 'px';
+
+                    requestAnimationFrame(animateLogo);
+                }
+                
+                window.addEventListener('resize', () => {
+                    if(container && logo) {
+                        containerRect = container.getBoundingClientRect();
+                        logoRect = logo.getBoundingClientRect();
+                        // Reset position if out of bounds
+                        if (x > containerRect.width - logoRect.width) x = Math.max(0, containerRect.width - logoRect.width);
+                        if (y > containerRect.height - logoRect.height) y = Math.max(0, containerRect.height - logoRect.height);
+                    }
+                });
+
+                requestAnimationFrame(animateLogo);
+            }
+        });
+    </script>
 </body>
 </html>

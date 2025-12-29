@@ -47,7 +47,7 @@ class TestPredictionLogic:
         red_model = joblib.load(backend / 'red_model.joblib')
 
         # Create dummy feature array (13 features)
-        dummy_features = np.random.randn(1, 13)
+        dummy_features = np.random.randn(1, 29)
 
         # Get prediction
         pred_proba = red_model.predict_proba(dummy_features)
@@ -66,7 +66,7 @@ class TestPredictionLogic:
         blue_model = joblib.load(backend / 'blue_model.joblib')
 
         # Create dummy feature array
-        dummy_features = np.random.randn(1, 13)
+        dummy_features = np.random.randn(1, 29)
 
         red_pred = red_model.predict_proba(dummy_features)[0][1]
         blue_pred = blue_model.predict_proba(dummy_features)[0][1]
@@ -92,7 +92,7 @@ class TestDataProcessing:
         df = pd.read_csv(backend / 'processed_data.csv')
 
         # Check required columns exist
-        required_cols = ['R_fighter', 'B_fighter', 'Winner', 'weight_class']
+        required_cols = ['r_fighter', 'b_fighter', 'Winner', 'weight_class']
         for col in required_cols:
             assert col in df.columns
 
