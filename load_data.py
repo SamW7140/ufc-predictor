@@ -108,6 +108,9 @@ def load_ufc_data():
     else:
         print("Warning: 'weight_class' column not found in dataset!")
 
+    # Create Winner column
+    df['Winner'] = df.apply(lambda row: row['r_fighter'] if row['status'] == 'win' else ('Draw' if row['status'] == 'draw' else 'NC'), axis=1)
+
     processed_data_path = os.path.join(project_root, 'backend', 'processed_data.csv')
     df.to_csv(processed_data_path, index=False)
     
