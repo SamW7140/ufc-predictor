@@ -25,6 +25,7 @@ htmlcov/
 
 # Documentation
 *.md
+!README.md
 docs/
 
 # Deployment guides
