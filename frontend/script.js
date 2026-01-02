@@ -7,39 +7,20 @@ let weightClasses = [];
 let currentPrediction = null;
 let comparisonChart = null;
 
-// Theme Management
-function initTheme() {
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    updateThemeIcon(savedTheme);
-}
-
-function toggleTheme() {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-    updateThemeIcon(newTheme);
-}
-
-function updateThemeIcon(theme) {
-    const icon = document.querySelector('.theme-icon');
-    icon.textContent = theme === 'dark' ? '☀️' : '🌙';
-}
-
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
-    initTheme();
     loadWeightClasses();
     loadFighters();
     loadStats();
     loadPredictionHistory();
     setupEventListeners();
+    
+    // Initial console effect
+    console.log("RETRO PREDICTOR SYSTEM INITIALIZED");
 });
 
 // Event Listeners
 function setupEventListeners() {
-    document.getElementById('theme-toggle-btn').addEventListener('click', toggleTheme);
     document.getElementById('predictBtn').addEventListener('click', makePrediction);
     document.getElementById('toggle-details').addEventListener('click', toggleModelDetails);
     document.getElementById('save-prediction').addEventListener('click', savePrediction);
@@ -53,7 +34,7 @@ function setupEventListeners() {
 // Load Overall Stats
 async function loadStats() {
     try {
-        const response = await fetch(\`\${API_BASE_URL}/api/stats\`);
+        const response = await fetch(`${API_BASE_URL}/api/stats`);
         const data = await response.json();
 
         document.getElementById('total-fights').textContent = data.total_fights || '0';
@@ -67,18 +48,18 @@ async function loadStats() {
 // Load Weight Classes
 async function loadWeightClasses() {
     try {
-        const response = await fetch(\`\${API_BASE_URL}/weight-classes\`);
+        const response = await fetch(`${API_BASE_URL}/weight-classes`);
         const data = await response.json();
         weightClasses = data.weight_classes || [];
 
         const select = document.getElementById('weight-class');
-        select.innerHTML = '<option value="All">All Weight Classes</option>';
+        select.innerHTML = '<option value="All">ALL CLASSES</option>';
 
         weightClasses.forEach(wc => {
             if (wc !== 'Unknown') {
                 const option = document.createElement('option');
                 option.value = wc;
-                option.textContent = wc;
+                option.textContent = wc.toUpperCase();
                 select.appendChild(option);
             }
         });
@@ -91,8 +72,8 @@ async function loadWeightClasses() {
 async function loadFighters() {
     const weightClass = document.getElementById('weight-class').value;
     const url = weightClass === 'All'
-        ? \`\${API_BASE_URL}/fighters\`
-        : \`\${API_BASE_URL}/fighters?weight_class=\${encodeURIComponent(weightClass)}\`;
+        ? `${API_BASE_URL}/fighters`
+        : `${API_BASE_URL}/fighters?weight_class=${encodeURIComponent(weightClass)}`;
 
     try {
         const response = await fetch(url);
@@ -112,14 +93,14 @@ function handleWeightClassChange() {
 // Autocomplete Setup
 function setupFighterAutocomplete(inputId) {
     const input = document.getElementById(inputId);
-    const suggestionsDiv = document.getElementById(\`\${inputId}-suggestions\`);
+    const suggestionsDiv = document.getElementById(`${inputId}-suggestions`);
 
     input.addEventListener('input', function() {
         const value = this.value.toLowerCase();
         suggestionsDiv.innerHTML = '';
 
         if (value.length < 2) {
-            suggestionsDiv.classList.add('hidden');
+            suggestionsDiv.style.display = 'none';
             return;
         }
 
@@ -128,7 +109,7 @@ function setupFighterAutocomplete(inputId) {
         ).slice(0, 10);
 
         if (filtered.length === 0) {
-            suggestionsDiv.classList.add('hidden');
+            suggestionsDiv.style.display = 'none';
             return;
         }
 
@@ -139,37 +120,20 @@ function setupFighterAutocomplete(inputId) {
             div.addEventListener('click', function() {
                 input.value = fighter;
                 suggestionsDiv.innerHTML = '';
-                suggestionsDiv.classList.add('hidden');
-                loadFighterWeightClasses(fighter, inputId);
+                suggestionsDiv.style.display = 'none';
             });
             suggestionsDiv.appendChild(div);
         });
 
-        suggestionsDiv.classList.remove('hidden');
+        suggestionsDiv.style.display = 'block';
     });
 
-    input.addEventListener('blur', function() {
-        setTimeout(() => {
-            suggestionsDiv.classList.add('hidden');
-        }, 200);
-    });
-}
-
-async function loadFighterWeightClasses(fighterName, inputId) {
-    try {
-        const response = await fetch(\`\${API_BASE_URL}/fighter-weight-classes/\${encodeURIComponent(fighterName)}\`);
-        const data = await response.json();
-
-        const weightClassInfo = document.getElementById(\`\${inputId}-weight-classes\`);
-        if (data.weight_classes && data.weight_classes.length > 0) {
-            weightClassInfo.textContent = \`Fights in: \${data.weight_classes.join(', ')}\`;
-            weightClassInfo.classList.remove('hidden');
-        } else {
-            weightClassInfo.classList.add('hidden');
+    // Close suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+        if (e.target !== input && e.target !== suggestionsDiv) {
+            suggestionsDiv.style.display = 'none';
         }
-    } catch (error) {
-        console.error('Error loading fighter weight classes:', error);
-    }
+    });
 }
 
 // Make Prediction
@@ -177,14 +141,16 @@ async function makePrediction() {
     const fighter1 = document.getElementById('fighter1').value.trim();
     const fighter2 = document.getElementById('fighter2').value.trim();
     let weightClass = document.getElementById('weight-class').value;
+    const btn = document.getElementById('predictBtn');
+    const resultDiv = document.getElementById('prediction-result');
 
     if (!fighter1 || !fighter2) {
-        showError('Please enter both fighter names');
+        alert('ERROR: INPUT BOTH FIGHTERS');
         return;
     }
 
     if (fighter1.toLowerCase() === fighter2.toLowerCase()) {
-        showError('Please select two different fighters');
+        alert('ERROR: SAME FIGHTER SELECTED');
         return;
     }
 
@@ -192,18 +158,17 @@ async function makePrediction() {
         weightClass = '';
     }
 
-    // Show loading
-    document.getElementById('loading').classList.remove('hidden');
-    document.getElementById('result').classList.add('hidden');
-    document.getElementById('error').classList.add('hidden');
-    document.getElementById('fighter-comparison').classList.add('hidden');
+    // UI Loading State
+    btn.textContent = 'COMPUTING...';
+    btn.disabled = true;
+    resultDiv.style.display = 'none';
 
     try {
         // Load fighter comparison first
         await loadFighterComparison(fighter1, fighter2);
 
         // Make prediction
-        const response = await fetch(\`\${API_BASE_URL}/predict\`, {
+        const response = await fetch(`${API_BASE_URL}/predict`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -230,16 +195,17 @@ async function makePrediction() {
 
         displayPrediction(data, fighter1, fighter2);
     } catch (error) {
-        showError(error.message);
+        alert(`SYSTEM ERROR: ${error.message}`);
     } finally {
-        document.getElementById('loading').classList.add('hidden');
+        btn.textContent = 'INITIATE PREDICTION SEQUENCE';
+        btn.disabled = false;
     }
 }
 
 // Load Fighter Comparison
 async function loadFighterComparison(fighter1, fighter2) {
     try {
-        const response = await fetch(\`\${API_BASE_URL}/api/compare/\${encodeURIComponent(fighter1)}/\${encodeURIComponent(fighter2)}\`);
+        const response = await fetch(`${API_BASE_URL}/api/compare/${encodeURIComponent(fighter1)}/${encodeURIComponent(fighter2)}`);
 
         if (!response.ok) {
             throw new Error('Failed to load comparison data');
@@ -253,56 +219,59 @@ async function loadFighterComparison(fighter1, fighter2) {
 }
 
 function displayFighterComparison(data) {
-    const comparisonDiv = document.getElementById('fighter-comparison');
     const f1 = data.fighter1;
     const f2 = data.fighter2;
 
-    // Update fighter names
-    document.getElementById('fighter1-name').textContent = f1.name;
-    document.getElementById('fighter2-name').textContent = f2.name;
+    // Populate Tale of the Tape
+    const tape = document.getElementById('tale-of-tape');
+    tape.innerHTML = `
+        <div class="tape-cell tape-label">METRIC</div>
+        <div class="tape-cell tape-label" style="color: var(--retro-green)">${f1.name}</div>
+        <div class="tape-cell tape-label" style="color: var(--retro-red)">${f2.name}</div>
 
-    // Update fighter stats
-    document.getElementById('fighter1-stats').innerHTML = \`
-        <p><strong>Record:</strong> \${f1.career_wins}-\${f1.career_losses}</p>
-        <p><strong>Win Rate:</strong> \${(f1.win_rate * 100).toFixed(1)}%</p>
-        <p><strong>Career Fights:</strong> \${f1.career_fights}</p>
-        <p><strong>Avg Strikes:</strong> \${f1.avg_strikes.toFixed(2)}</p>
-        <p><strong>Avg Takedowns:</strong> \${f1.avg_takedowns.toFixed(2)}</p>
-    \`;
+        <div class="tape-cell">RECORD</div>
+        <div class="tape-cell">${f1.career_wins}-${f1.career_losses}</div>
+        <div class="tape-cell">${f2.career_wins}-${f2.career_losses}</div>
 
-    document.getElementById('fighter2-stats').innerHTML = \`
-        <p><strong>Record:</strong> \${f2.career_wins}-\${f2.career_losses}</p>
-        <p><strong>Win Rate:</strong> \${(f2.win_rate * 100).toFixed(1)}%</p>
-        <p><strong>Career Fights:</strong> \${f2.career_fights}</p>
-        <p><strong>Avg Strikes:</strong> \${f2.avg_strikes.toFixed(2)}</p>
-        <p><strong>Avg Takedowns:</strong> \${f2.avg_takedowns.toFixed(2)}</p>
-    \`;
+        <div class="tape-cell">WIN RATE</div>
+        <div class="tape-cell">${(f1.win_rate * 100).toFixed(1)}%</div>
+        <div class="tape-cell">${(f2.win_rate * 100).toFixed(1)}%</div>
+
+        <div class="tape-cell">STRIKES/MIN</div>
+        <div class="tape-cell">${f1.avg_strikes.toFixed(2)}</div>
+        <div class="tape-cell">${f2.avg_strikes.toFixed(2)}</div>
+
+        <div class="tape-cell">TAKEDOWNS</div>
+        <div class="tape-cell">${f1.avg_takedowns.toFixed(2)}</div>
+        <div class="tape-cell">${f2.avg_takedowns.toFixed(2)}</div>
+    `;
 
     // Create radar chart
     createComparisonChart(f1, f2);
-
-    comparisonDiv.classList.remove('hidden');
 }
 
 function createComparisonChart(fighter1, fighter2) {
-    const ctx = document.getElementById('comparison-chart');
+    const ctx = document.getElementById('comparisonChart');
 
     // Destroy existing chart if any
     if (comparisonChart) {
         comparisonChart.destroy();
     }
 
-    // Normalize values for better visualization
-    const maxWinRate = Math.max(fighter1.win_rate, fighter2.win_rate);
-    const maxFights = Math.max(fighter1.career_fights, fighter2.career_fights);
-    const maxStrikes = Math.max(fighter1.avg_strikes, fighter2.avg_strikes);
-    const maxTakedowns = Math.max(fighter1.avg_takedowns, fighter2.avg_takedowns);
-    const maxKnockdowns = Math.max(fighter1.avg_knockdowns, fighter2.avg_knockdowns);
+    // Normalize values
+    const maxWinRate = Math.max(fighter1.win_rate, fighter2.win_rate) || 1;
+    const maxFights = Math.max(fighter1.career_fights, fighter2.career_fights) || 1;
+    const maxStrikes = Math.max(fighter1.avg_strikes, fighter2.avg_strikes) || 1;
+    const maxTakedowns = Math.max(fighter1.avg_takedowns, fighter2.avg_takedowns) || 1;
+    const maxKnockdowns = Math.max(fighter1.avg_knockdowns, fighter2.avg_knockdowns) || 1;
+
+    Chart.defaults.color = '#33ff00';
+    Chart.defaults.borderColor = '#222';
 
     comparisonChart = new Chart(ctx, {
         type: 'radar',
         data: {
-            labels: ['Win Rate', 'Experience', 'Striking', 'Takedowns', 'Knockdowns'],
+            labels: ['WIN RATE', 'EXP', 'STRIKING', 'TAKEDOWNS', 'KNOCKDOWNS'],
             datasets: [{
                 label: fighter1.name,
                 data: [
@@ -312,9 +281,10 @@ function createComparisonChart(fighter1, fighter2) {
                     (fighter1.avg_takedowns / maxTakedowns) * 100,
                     (fighter1.avg_knockdowns / maxKnockdowns) * 100
                 ],
-                backgroundColor: 'rgba(102, 126, 234, 0.2)',
-                borderColor: 'rgba(102, 126, 234, 1)',
-                borderWidth: 2
+                backgroundColor: 'rgba(51, 255, 0, 0.2)',
+                borderColor: '#33ff00',
+                borderWidth: 2,
+                pointBackgroundColor: '#33ff00'
             }, {
                 label: fighter2.name,
                 data: [
@@ -324,26 +294,25 @@ function createComparisonChart(fighter1, fighter2) {
                     (fighter2.avg_takedowns / maxTakedowns) * 100,
                     (fighter2.avg_knockdowns / maxKnockdowns) * 100
                 ],
-                backgroundColor: 'rgba(230, 57, 70, 0.2)',
-                borderColor: 'rgba(230, 57, 70, 1)',
-                borderWidth: 2
+                backgroundColor: 'rgba(255, 51, 51, 0.2)',
+                borderColor: '#ff3333',
+                borderWidth: 2,
+                pointBackgroundColor: '#ff3333'
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: true,
             scales: {
                 r: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                        stepSize: 20
-                    }
+                    angleLines: { color: '#333' },
+                    grid: { color: '#333' },
+                    pointLabels: { font: { family: 'VT323', size: 14 } },
+                    ticks: { display: false }
                 }
             },
             plugins: {
                 legend: {
-                    position: 'bottom'
+                    labels: { font: { family: 'VT323', size: 14 } }
                 }
             }
         }
@@ -352,63 +321,52 @@ function createComparisonChart(fighter1, fighter2) {
 
 // Display Prediction
 function displayPrediction(data, fighter1, fighter2) {
-    const resultDiv = document.getElementById('result');
+    const resultDiv = document.getElementById('prediction-result');
+    const winnerDisplay = document.getElementById('predicted-winner');
+    const probBar = document.getElementById('probability-bar');
+    const probValue = document.getElementById('probability-value');
+    const methodDisplay = document.getElementById('predicted-method');
+    const modelDetails = document.getElementById('model-details');
 
-    // Main prediction text
-    document.getElementById('predictionText').textContent = data.prediction;
+    // Winner
+    winnerDisplay.textContent = data.winner;
+    winnerDisplay.style.color = data.winner === fighter1 ? 'var(--retro-green)' : 'var(--retro-red)';
 
-    // Confidence meter
-    const confidenceFill = document.getElementById('confidence-fill');
-    const confidenceLevel = data.confidence_level * 100;
-    confidenceFill.style.width = \`\${confidenceLevel}%\`;
+    // Probability
+    const confidence = data.confidence_level * 100;
+    probBar.style.width = `${confidence}%`;
+    probValue.textContent = `${confidence.toFixed(1)}% PROBABILITY`;
 
-    document.getElementById('confidence-info').textContent =
-        \`Confidence Level: \${confidenceLevel.toFixed(1)}%\`;
-
-    // Probability split
-    const winProb = data.win_probability * 100;
-    const loseProb = (1 - data.win_probability) * 100;
-
-    if (data.winner === fighter1) {
-        document.getElementById('fighter1-prob-name').textContent = fighter1;
-        document.getElementById('fighter1-prob-value').textContent = \`\${winProb.toFixed(1)}%\`;
-        document.getElementById('fighter2-prob-name').textContent = fighter2;
-        document.getElementById('fighter2-prob-value').textContent = \`\${loseProb.toFixed(1)}%\`;
+    // Method (if available)
+    if (data.model_details && data.model_details.prediction_method) {
+        methodDisplay.textContent = data.model_details.prediction_method.toUpperCase();
     } else {
-        document.getElementById('fighter1-prob-name').textContent = fighter1;
-        document.getElementById('fighter1-prob-value').textContent = \`\${loseProb.toFixed(1)}%\`;
-        document.getElementById('fighter2-prob-name').textContent = fighter2;
-        document.getElementById('fighter2-prob-value').textContent = \`\${winProb.toFixed(1)}%\`;
+        methodDisplay.textContent = 'N/A';
     }
 
-    // Weight class info
-    document.getElementById('weight-class-info').textContent =
-        \`Weight Class: \${data.weight_class}\`;
-
-    // Model details
+    // Model Details
     if (data.model_details) {
-        document.getElementById('prediction-method').textContent =
-            \`Prediction Method: \${data.model_details.prediction_method}\`;
-        document.getElementById('model-confidences').textContent =
-            \`Red Model Confidence: \${(data.model_details.red_model_confidence * 100).toFixed(1)}% | \` +
-            \`Blue Model Confidence: \${(data.model_details.blue_model_confidence * 100).toFixed(1)}%\`;
-        document.getElementById('fighter-order-info').textContent =
-            \`Fighter Order Randomized: \${data.fighter_order_randomized ? 'Yes' : 'No'}\`;
+        modelDetails.innerHTML = `
+            <p>RED MODEL CONFIDENCE: ${(data.model_details.red_model_confidence * 100).toFixed(1)}%</p>
+            <p>BLUE MODEL CONFIDENCE: ${(data.model_details.blue_model_confidence * 100).toFixed(1)}%</p>
+            <p>RANDOMIZED ORDER: ${data.fighter_order_randomized ? 'YES' : 'NO'}</p>
+        `;
     }
 
-    resultDiv.classList.remove('hidden');
+    resultDiv.style.display = 'block';
+    resultDiv.scrollIntoView({ behavior: 'smooth' });
 }
 
 function toggleModelDetails() {
     const details = document.getElementById('model-details');
-    const button = document.getElementById('toggle-details');
-
-    if (details.classList.contains('hidden')) {
-        details.classList.remove('hidden');
-        button.textContent = 'Hide Model Details';
+    const btn = document.getElementById('toggle-details');
+    
+    if (details.style.display === 'none') {
+        details.style.display = 'block';
+        btn.textContent = 'HIDE RAW DATA';
     } else {
-        details.classList.add('hidden');
-        button.textContent = 'Show Model Details';
+        details.style.display = 'none';
+        btn.textContent = 'VIEW RAW DATA';
     }
 }
 
@@ -416,63 +374,45 @@ function toggleModelDetails() {
 function savePrediction() {
     if (!currentPrediction) return;
 
-    let history = JSON.parse(localStorage.getItem('predictionHistory') || '[]');
+    let history = JSON.parse(localStorage.getItem('retroPredictionHistory') || '[]');
     history.unshift(currentPrediction);
 
-    // Keep only last 10 predictions
-    if (history.length > 10) {
-        history = history.slice(0, 10);
-    }
+    if (history.length > 10) history = history.slice(0, 10);
 
-    localStorage.setItem('predictionHistory', JSON.stringify(history));
+    localStorage.setItem('retroPredictionHistory', JSON.stringify(history));
     loadPredictionHistory();
-
-    // Show confirmation
-    alert('Prediction saved to history!');
+    alert('LOG SAVED TO MEMORY BANK');
 }
 
 function loadPredictionHistory() {
-    const history = JSON.parse(localStorage.getItem('predictionHistory') || '[]');
+    const history = JSON.parse(localStorage.getItem('retroPredictionHistory') || '[]');
     const historyDiv = document.getElementById('prediction-history');
     const clearBtn = document.getElementById('clear-history');
 
     if (history.length === 0) {
-        historyDiv.innerHTML = '<p class="no-history">No predictions yet. Make your first prediction above!</p>';
-        clearBtn.classList.add('hidden');
+        historyDiv.innerHTML = '<div style="text-align: center; color: #555;">NO LOGS FOUND</div>';
+        clearBtn.style.display = 'none';
         return;
     }
 
-    historyDiv.innerHTML = history.map(pred => \`
-        <div class="history-item">
-            <div class="history-item-header">
-                <span class="history-winner">🏆 \${pred.winner}</span>
-                <span class="history-timestamp">\${new Date(pred.timestamp).toLocaleDateString()}</span>
+    historyDiv.innerHTML = history.map(pred => `
+        <div style="border-bottom: 1px dashed #333; padding: 10px; margin-bottom: 10px;">
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--retro-green)">WIN: ${pred.winner}</span>
+                <span style="color: #666">${new Date(pred.timestamp).toLocaleDateString()}</span>
             </div>
-            <p class="history-matchup">\${pred.fighter1} vs \${pred.fighter2}</p>
-            <p class="history-probability">Win Probability: \${(pred.win_probability * 100).toFixed(1)}%</p>
+            <div style="font-size: 0.9rem; color: #aaa;">
+                ${pred.fighter1} vs ${pred.fighter2}
+            </div>
         </div>
-    \`).join('');
+    `).join('');
 
-    clearBtn.classList.remove('hidden');
+    clearBtn.style.display = 'inline-block';
 }
 
 function clearHistory() {
-    if (confirm('Are you sure you want to clear all prediction history?')) {
-        localStorage.removeItem('predictionHistory');
+    if (confirm('PURGE ALL LOGS?')) {
+        localStorage.removeItem('retroPredictionHistory');
         loadPredictionHistory();
     }
-}
-
-// Error Display
-function showError(message) {
-    const errorDiv = document.getElementById('error');
-    errorDiv.textContent = message;
-    errorDiv.classList.remove('hidden');
-
-    document.getElementById('result').classList.add('hidden');
-    document.getElementById('fighter-comparison').classList.add('hidden');
-
-    setTimeout(() => {
-        errorDiv.classList.add('hidden');
-    }, 5000);
 }
