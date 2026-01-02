@@ -1,97 +1,474 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>UFC Fighter Matchup Predictor - Demo</title>
-  <!-- Fixed GitHub Pages deployment -->
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UFC PREDICTOR | Retro Edition</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            /* Brand Colors */
+            --retro-green: #33ff00;
+            --retro-dark: #0f0f0f;
+            --retro-gray: #222;
+            --retro-red: #ff3333;
+            
+            /* TV Colors */
+            --tv-casing: #222024;
+            --screen-black: #050505;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #101010;
+            color: var(--retro-green);
+            font-family: 'VT323', monospace;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* CRT Effects */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .flicker {
+            animation: flicker 0.15s infinite;
+        }
+
+        @keyframes flicker {
+            0% { opacity: 0.97; }
+            50% { opacity: 1; }
+            100% { opacity: 0.98; }
+        }
+
+        /* Layout */
+        #main-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            gap: 40px;
+        }
+
+        /* TV Set */
+        .tv-set {
+            width: 100%;
+            max-width: 1000px;
+            background: var(--tv-casing);
+            border-radius: 30px;
+            padding: 30px;
+            border: 10px solid #1a1a1a;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            position: relative;
+        }
+
+        .tv-screen-container {
+            background: var(--screen-black);
+            border-radius: 60px / 40px;
+            padding: 20px;
+            border: 4px solid #333;
+            box-shadow: inset 0 0 40px rgba(0,0,0,1);
+            min-height: 600px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tv-content {
+            height: 100%;
+            overflow-y: auto;
+            padding: 20px;
+            color: var(--retro-green);
+            text-shadow: 0 0 2px var(--retro-green);
+        }
+
+        /* Scrollbar for TV */
+        .tv-content::-webkit-scrollbar {
+            width: 10px;
+        }
+        .tv-content::-webkit-scrollbar-track {
+            background: #000;
+        }
+        .tv-content::-webkit-scrollbar-thumb {
+            background: var(--retro-green);
+            border: 2px solid #000;
+        }
+
+        /* Typography */
+        h1, h2, h3 {
+            font-family: 'Press Start 2P', cursive;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        h1 { font-size: 1.5rem; text-align: center; color: #fff; text-shadow: 2px 2px var(--retro-green); }
+        h2 { font-size: 1.2rem; margin-top: 30px; border-bottom: 2px dashed var(--retro-green); padding-bottom: 10px; }
+
+        /* Stats Banner */
+        .stats-banner {
+            display: flex;
+            justify-content: space-around;
+            border: 2px solid var(--retro-green);
+            padding: 10px;
+            margin-bottom: 30px;
+            background: rgba(51, 255, 0, 0.1);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Form Elements */
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-size: 1.2rem;
+        }
+
+        select, input {
+            background: #000;
+            color: var(--retro-green);
+            border: 2px solid var(--retro-green);
+            padding: 10px;
+            font-family: 'VT323', monospace;
+            font-size: 1.2rem;
+            outline: none;
+            box-shadow: 0 0 5px var(--retro-green);
+        }
+
+        select:focus, input:focus {
+            background: #0a2a00;
+        }
+
+        button#predictBtn {
+            background: var(--retro-green);
+            color: #000;
+            border: none;
+            padding: 15px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.2s;
+        }
+
+        button#predictBtn:hover {
+            background: #fff;
+            box-shadow: 0 0 15px var(--retro-green);
+            transform: scale(1.02);
+        }
+
+        /* Autocomplete */
+        .autocomplete {
+            position: relative;
+        }
+
+        .suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #000;
+            border: 2px solid var(--retro-green);
+            border-top: none;
+            z-index: 100;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .suggestion-item {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #333;
+        }
+
+        .suggestion-item:hover {
+            background: var(--retro-green);
+            color: #000;
+        }
+
+        /* Results Section */
+        #prediction-result {
+            margin-top: 40px;
+            border: 4px double var(--retro-green);
+            padding: 20px;
+            display: none; /* Hidden by default */
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .winner-display {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #fff;
+            text-shadow: 0 0 10px var(--retro-green);
+        }
+
+        .probability-bar-container {
+            width: 100%;
+            height: 30px;
+            background: #222;
+            border: 2px solid var(--retro-green);
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .probability-bar {
+            height: 100%;
+            background: var(--retro-green);
+            transition: width 1s ease-in-out;
+        }
+
+        .tale-tape {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-top: 30px;
+            font-size: 1.1rem;
+        }
+
+        .tape-row {
+            display: contents;
+        }
+
+        .tape-cell {
+            padding: 10px;
+            border-bottom: 1px dashed #333;
+            text-align: center;
+        }
+
+        .tape-label {
+            color: #aaa;
+            font-weight: bold;
+        }
+
+        /* Remote Control (Decorative/Functional) */
+        .remote {
+            width: 180px;
+            background: #2a2a2a;
+            border-radius: 15px;
+            padding: 20px;
+            border-bottom: 8px solid #111;
+            border-right: 4px solid #111;
+            display: none; /* Hidden on mobile */
+        }
+
+        @media (min-width: 1000px) {
+            .remote { display: block; }
+        }
+
+        .remote-btn {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: #111;
+            border: 1px solid #444;
+            color: #888;
+            font-family: monospace;
+            cursor: pointer;
+            text-align: center;
+        }
+        
+        .remote-btn:active {
+            background: var(--retro-green);
+            color: #000;
+        }
+
+        .power-btn {
+            width: 40px;
+            height: 40px;
+            background: red;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            cursor: pointer;
+            border: 2px solid #500;
+        }
+
+        /* Hidden elements required by script.js */
+        #theme-toggle-btn { display: none; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            #main-container { flex-direction: column; padding: 10px; }
+            .tv-set { padding: 10px; border-width: 5px; }
+            .tv-screen-container { padding: 10px; min-height: 80vh; }
+            h1 { font-size: 1rem; }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>UFC Fighter Matchup Predictor</h1>
-    <div class="demo-notice">
-      <p><strong>GitHub Pages Demo</strong> - This is a static demonstration version. For full ML predictions, <a href="https://github.com/SamW7140/ufc-predictor" target="_blank">clone the repository</a> and run locally.</p>
-    </div>
-    <div class="input-section">
-      <div class="input-group">
-        <label for="weight-class">Weight Class:</label>
-        <select id="weight-class">
-          <option value="All">All Weight Classes</option>
-          <option value="Heavyweight">Heavyweight</option>
-          <option value="Light Heavyweight">Light Heavyweight</option>
-          <option value="Middleweight">Middleweight</option>
-          <option value="Welterweight">Welterweight</option>
-          <option value="Lightweight">Lightweight</option>
-          <option value="Featherweight">Featherweight</option>
-          <option value="Bantamweight">Bantamweight</option>
-          <option value="Flyweight">Flyweight</option>
-        </select>
-        <small class="hint">Select a weight class to filter available fighters</small>
-      </div>
-      <div class="input-group">
-        <label for="fighter1">Fighter 1:</label>
-        <div class="autocomplete">
-          <input type="text" id="fighter1" placeholder="Enter fighter name (e.g., Jon Jones, Conor McGregor)">
-          <div id="fighter1-suggestions" class="suggestions"></div>
-        </div>
-        <div id="fighter1-weight-classes" class="weight-class-info hidden"></div>
-      </div>
-      <div class="input-group">
-        <label for="fighter2">Fighter 2:</label>
-        <div class="autocomplete">
-          <input type="text" id="fighter2" placeholder="Enter fighter name (e.g., Daniel Cormier, Nate Diaz)">
-          <div id="fighter2-suggestions" class="suggestions"></div>
-        </div>
-        <div id="fighter2-weight-classes" class="weight-class-info hidden"></div>
-      </div>
-      <button id="predictBtn">Predict Winner</button>
-    </div>
-    <div class="result-section">
-      <div id="loading" class="hidden">Calculating prediction...</div>
-      <div id="result" class="hidden">
-        <h2>Prediction Result</h2>
-        <div class="prediction-card">
-          <p id="predictionText" class="prediction-main"></p>
-          <div class="prediction-details">
-            <p id="confidence-info"></p>
-            <p id="weight-class-info"></p>
-            <div id="model-details" class="model-details hidden">
-              <h3>Model Details</h3>
-              <p id="prediction-method"></p>
-              <p id="model-confidences"></p>
-              <p id="fighter-order-info"></p>
+
+    <div class="scanlines"></div>
+
+    <div id="main-container">
+        <!-- TV SET -->
+        <div class="tv-set">
+            <div class="tv-screen-container">
+                <div class="tv-content flicker">
+                    
+                    <header>
+                        <h1>UFC PREDICTOR SYSTEM</h1>
+                        <div style="text-align: center; font-size: 0.8rem; margin-bottom: 20px;">v2.0.25 [RETRO_OS]</div>
+                    </header>
+
+                    <!-- Stats Banner -->
+                    <div class="stats-banner" id="stats-banner">
+                        <div class="stat-item">
+                            <span class="stat-value" id="total-fights">LOADING...</span>
+                            <span class="stat-label">FIGHTS DB</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="total-fighters">...</span>
+                            <span class="stat-label">FIGHTERS</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="weight-classes-count">...</span>
+                            <span class="stat-label">CLASSES</span>
+                        </div>
+                    </div>
+
+                    <!-- Input Section -->
+                    <div class="input-section">
+                        <div class="input-group">
+                            <label for="weight-class">> SELECT WEIGHT CLASS:</label>
+                            <select id="weight-class">
+                                <option value="All">INITIALIZING...</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="fighter1">> RED CORNER FIGHTER:</label>
+                            <div class="autocomplete">
+                                <input type="text" id="fighter1" placeholder="TYPE NAME..." autocomplete="off">
+                                <div id="fighter1-suggestions" class="suggestions"></div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="fighter2">> BLUE CORNER FIGHTER:</label>
+                            <div class="autocomplete">
+                                <input type="text" id="fighter2" placeholder="TYPE NAME..." autocomplete="off">
+                                <div id="fighter2-suggestions" class="suggestions"></div>
+                            </div>
+                        </div>
+
+                        <button id="predictBtn">INITIATE PREDICTION SEQUENCE</button>
+                    </div>
+
+                    <!-- Results Section -->
+                    <div id="prediction-result">
+                        <h2>ANALYSIS COMPLETE</h2>
+                        
+                        <div class="winner-display">
+                            WINNER: <span id="predicted-winner" style="color: var(--retro-green)">-</span>
+                        </div>
+
+                        <div style="text-align: center; margin-bottom: 10px;">CONFIDENCE LEVEL:</div>
+                        <div class="probability-bar-container">
+                            <div id="probability-bar" class="probability-bar" style="width: 0%"></div>
+                        </div>
+                        <div style="text-align: center;" id="probability-value">0%</div>
+
+                        <div style="margin-top: 20px; text-align: center;">
+                            METHOD: <span id="predicted-method">-</span>
+                        </div>
+
+                        <!-- Tale of the Tape -->
+                        <h2>TALE OF THE TAPE</h2>
+                        <div class="tale-tape" id="tale-of-tape">
+                            <!-- Populated by JS -->
+                        </div>
+
+                        <!-- Chart -->
+                        <h2>FEATURE ANALYSIS</h2>
+                        <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 5px;">
+                            <canvas id="comparisonChart"></canvas>
+                        </div>
+
+                        <div style="margin-top: 20px; text-align: center;">
+                            <button id="toggle-details" class="remote-btn" style="width: auto; display: inline-block;">VIEW RAW DATA</button>
+                            <button id="save-prediction" class="remote-btn" style="width: auto; display: inline-block;">SAVE LOG</button>
+                        </div>
+                        
+                        <div id="model-details" style="display: none; margin-top: 20px; border-top: 1px dashed #555; padding-top: 10px; font-size: 0.9rem;">
+                            <!-- Details populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- History Section -->
+                    <div id="history-section" style="margin-top: 50px; border-top: 4px solid var(--retro-green); padding-top: 20px;">
+                        <h2>PREDICTION LOGS</h2>
+                        <button id="clear-history" class="remote-btn" style="width: auto; margin-bottom: 10px;">PURGE LOGS</button>
+                        <div id="prediction-history"></div>
+                    </div>
+
+                </div>
             </div>
-          </div>
         </div>
-        <button id="toggle-details" class="toggle-details">Show Details</button>
-      </div>
-      <div id="error" class="hidden"></div>
+
+        <!-- REMOTE CONTROL -->
+        <div class="remote">
+            <div class="power-btn" onclick="location.reload()"></div>
+            <div style="text-align: center; color: #666; margin-bottom: 15px; font-size: 0.8rem;">CONTROLS</div>
+            <button class="remote-btn" onclick="document.getElementById('fighter1').focus()">INPUT 1</button>
+            <button class="remote-btn" onclick="document.getElementById('fighter2').focus()">INPUT 2</button>
+            <button class="remote-btn" onclick="document.getElementById('predictBtn').click()">EXECUTE</button>
+            <div style="height: 20px;"></div>
+            <button class="remote-btn" onclick="document.getElementById('history-section').scrollIntoView({behavior: 'smooth'})">LOGS</button>
+            <button class="remote-btn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">TOP</button>
+        </div>
     </div>
-    
-    <div class="info-section">
-      <h2>About This Demo</h2>
-      <p>This is a static demonstration of the UFC Fighter Matchup Predictor. The full application uses machine learning models trained on comprehensive UFC fight data to predict fight outcomes.</p>
-      
-      <h3>Full Application Features:</h3>
-      <ul>
-        <li><strong>Machine Learning Predictions</strong>: Trained models with bias elimination and confidence scoring</li>
-        <li><strong>Real Fighter Data</strong>: Database of UFC fighters with historical performance statistics</li>
-        <li><strong>Weight Class Filtering</strong>: Smart filtering and validation for realistic matchups</li>
-        <li><strong>Advanced Analytics</strong>: Dual-model perspective with confidence-weighted predictions</li>
-      </ul>
-      
-      <h3>Run Locally:</h3>
-      <pre><code>git clone https://github.com/SamW7140/ufc-predictor.git
-cd ufc-predictor
-python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-python backend/app.py</code></pre>
-      
-      <p>Then visit <code>http://localhost:5000</code> for the full experience!</p>
-    </div>
-  </div>
-  <script src="script.js"></script>
+
+    <!-- Hidden elements for script compatibility -->
+    <button id="theme-toggle-btn"></button>
+
+    <script src="script.js"></script>
 </body>
 </html>
