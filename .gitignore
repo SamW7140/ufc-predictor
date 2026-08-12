@@ -1,4 +1,8 @@
 # Python
+# backend/.venv was committed before this file existed - 11,517 files and most of
+# the repo's 110 MB. Untracked now; the explicit path below is belt-and-braces so
+# a `git add -f` habit can't quietly bring it back.
+backend/.venv/
 __pycache__/
 *.py[cod]
 *$py.class
